@@ -1,6 +1,7 @@
 # lane detect and sift in gazebo
 
 본 프로젝트는 Gazebo 시뮬레이터에서 동작하는 TurtleBot3 모델을 기반으로, ROS 2 (Humble) 환경에서 자율주행 기능을 구현한 시뮬레이션 프로젝트입니다.
+
 노란선/흰선 차선 인식, 사람 인식 및 정지, 신호등/표지판 인식, IMU 기반 경사로 속도 제어 등의 기능을 포함하며, 사용자는 PyQt5 기반 GUI를 통해 카메라 영상 확인 및 제어가 가능합니다.
 
 ---
@@ -10,16 +11,6 @@
 [![Video Label](http://img.youtube.com/vi/gTjKGNT-14w/0.jpg)](https://youtu.be/gTjKGNT-14w)
 
 ---
-
-
-
-🚗 자율주행 기능 요약
-기능	설명
-차선 추적	노란선/흰선 분리 및 추적 주행 (OpenCV 기반)
-사람 인식 후 정지	시뮬레이션 상 인물 객체 감지 후 멈춤
-신호등/표지판 인식	색상 기반 필터링 + SIFT로 구분
-경사로 속도 제어	IMU pitch 값 기반 속도 조정
-GUI 연동	PyQt5 기반 실시간 카메라 영상 및 제어 가능
 
 ## 💻 사용 환경 및 개발 도구
 
@@ -68,15 +59,15 @@ PyQt5 기반 GUI 시스템
 
 ## 프로젝트 트리 구조
 
-```
+
 turtlebot3_ws/src/
 ├── **aruco_yolo**
-├── dynamic_obstacle_plugin
+├── **dynamic_obstacle_plugin**
 ├── DynamixelSDK
 ├── fsd_pkg
 ├── image_pipeline
 ├── ld08_driver
-├── pyqt_robot
+├── **pyqt_robot**
 ├── sample_pkg
 ├── turtlebot3
 │   ├── turtlebot3
@@ -89,9 +80,9 @@ turtlebot3_ws/src/
 │   └── turtlebot3_teleop
 ├── turtlebot3_autorace
 │   ├── turtlebot3_autorace
-│   ├── turtlebot3_autorace_camera
-│   ├── turtlebot3_autorace_detect
-│   └── turtlebot3_autorace_mission
+│   ├── **turtlebot3_autorace_camera**
+│   ├── **turtlebot3_autorace_detect**
+│   └── **turtlebot3_autorace_mission**
 ├── turtlebot3_manipulation
 │   ├── turtlebot3_manipulation
 │   ├── turtlebot3_manipulation_bringup
@@ -102,7 +93,7 @@ turtlebot3_ws/src/
 ├── turtlebot3_msgs
 ├── turtlebot3_simulations
 │   ├── turtlebot3_fake_node
-│   ├── turtlebot3_gazebo
+│   ├── **turtlebot3_gazebo**
 │   ├── turtlebot3_manipulation_gazebo
 │   └── turtlebot3_simulations
 ├── turtlebot_cosmo_interface
@@ -115,209 +106,130 @@ turtlebot3_ws/src/
     ├── opencv_tests
     └── vision_opencv
 
-```
-**requirement**
 
-src/hospital/resource/.env 파일에 OPENAI_API_KEY=~~ 부분에 키를 수정해줘야함
+**prerequirement**
+
+[robotis turtlebot3 emanual](https://emanual.robotis.com/docs/en/platform/turtlebot3/quick-start/)
+
+3.Quick start guide, 6. Simulation, 8. Autonomous driving 참고하면서 가제보월드(turtlebot3_autorace_2020)상에서 자율주행까지 진행
 
 **설치방법**
 
-robokrates_ws 를 다운받고
+project_turtlebot3_autorace_simulation.zip 을 다운받고 위 트리구조에서 bold처리된 폴더 추가 및 교체하고 빌드
 
 ```bash
-cd robokrates_ws/
+cd turtlebot3_ws/
 colcon build
 ```
 ---
 
 ## ROS2 노드 구성 (요약)
 
-- **doosan robot**
-- **realsense**
-- **get_keyword**
-- **robot_control**
-- **tracking**
-- **tracking_detection**
-- **detection**
-- **detection_manager**
-- **flask server**
+- **robot_state_publisher(gazebo world)**
+- **intrinsic camera calibration**
+- **extrinsic camera calibration**
+- **detect_lane**
+- **detect_trafficlight**
+- **detect_intersection**
+- **detect_person**
+- **control_lane**
+- **pyqt_robot**
 
+<img width="1294" height="869" alt="image" src="https://github.com/user-attachments/assets/26914b54-c3f3-45c9-b1a6-8d113a1bd4b3" />
 
-<img src="https://github.com/user-attachments/assets/f5d80b67-d562-4793-8ef6-46ee1e6478e5" width="1280"/>
-
-
-
-
-# Prerequirement
-[InstallFile.zip](https://github.com/user-attachments/files/20845782/InstallFile.zip)
-
-**순서대로 .sh 파일 실행하여 설치**
-
-주의사항) 이 부분은 압축을 푼후 01-prerequirements.sh 파일 실행 후 중간에 패스워드 입력하라는 창이 뜨는 경우, 새로운 패스워드 등록 후 잘 기억하고 재부팅시 파란화면(MOK화면)이 뜨신 분만 따라하시면 됩니다. 그리고 중간에 패스워드 입력하라고 할 시 위에서 입력했었던 패스워드 입력하면 됩니다.
-```
-Perform MOK management 화면(파란 화면) → [Enroll MOK] → [View key 0] → [Esc] → [Continue] → [YES] → [Reboot]
-```
 
 ---
-## 1. 두산 로봇 노드
+## 1. gazebo world
 
-## 외부 패키지 DoosanBootcamp3rd 설치
-이 프로젝트는 다음 외부 패키지의 설치를 요구합니다:
-
-[DoosanBootcamp3rd GitHub](https://github.com/ROKEY-SPARK/DoosanBootcamp3rd)
-
-robokrates_ws/src/ 에 DoosanBootcamp3rd/ 를 넣고 src에서 colcon build 후 source install/setup.bash
-
-**터미널1 doosan robot 노드 실행**
+**터미널1 gazebo world 노드 실행**
 ```bash
-ros2 launch dsr_bringup2 dsr_bringup2_rviz.launch.py mode:=real host:=192.168.1.100 port:=12345 model:=m0609
+ros2 launch turtlebot3_gazebo turtlebot3_autorace_2020.launch.py
 ```
 ---
-## 2. realsense 노드
+## 2. intrinsic camera calibration
+
+이미지 전처리 노드
 
 **터미널2 realsense 노드 실행**
 ```bash
-ros2 launch realsense2_camera rs_align_depth_launch.py depth_module.depth_profile:=640x480x15 rgb_camera.color_profile:=640x480x15 initial_reset:=true align_depth.enable:=true enable_rgbd:=true
+ros2 launch turtlebot3_autorace_camera intrinsic_camera_calibration.launch.py
 ```
 
 ---
 
-## 3. get_keyword 노드
+## 3. extrinsic camera calibration
 
-사용자의 음성 명령을 인식하여 **도구(Object)** 및 **목적지(Target)** 정보를 추출하고, 이를 ROS2 서비스 형태로 다른 노드(예: robot_control)로 전달하는 **음성 기반 인터페이스 핵심 노드**입니다.
-
-<img src="https://github.com/user-attachments/assets/a3fca366-3c46-4b91-b6db-2c9d00567403" width="1280"/>
-
-### 주요 기능
-
-1. **Wake Word 감지**
-   - `"hello rokey"`를 감지하면 대기 상태에서 활성 상태로 전환
-   - `"Yes, I'm ready"` TTS 응답으로 사용자와 인터랙션 시작
-
-2. **STT → GPT-4o 기반 명령어 분석**
-   - 사용자의 음성을 **텍스트로 변환 (STT)**
-   - LangChain + GPT-4o 모델을 통해 텍스트에서 명령어 추출  
-   - 예:  
-     - `"메스"` → `object: scalpel`, `target: hands`  
-     - `"트래킹 시작해줘"` → `object: start`, `target: tracking`
-
-3. **명령어 전송 및 응답 처리**
-   - 추출된 명령어를 ROS2 서비스 응답 및 Socket.IO를 통해 다른 모듈로 전달  
-   - 명령 유형에 따라 **TTS 안내** 또는 **웹 UI 알림 송신**
-
-
-### 지원 명령어 예시
-
-| 사용자 입력 | Object | Target | 특이 처리 |
-|-------------|--------|--------|------------|
-| "메스" | scalpel | hands | TTS 응답 |
-| "스프레이" | spray | scar | "소독을 시작합니다" |
-| "석션" | suction | scar | TTS 응답 |
-| "수술정보" | info | info | Socket.IO로 info emit |
-| "트래킹 시작해줘" | start | tracking | TTS "tracking_start" |
-| "트래킹 종료해줘" | stop | tracking | TTS "tracking_stop" |
-
-
-### AI 처리 파이프라인
-
-```text
-STT (MicController → OpenAI Whisper) 
-→ LangChain Prompt (GPT-4o) 
-→ 도구 및 목적지 추출 
-→ ROS2 Service 응답 or SocketIO 이벤트 발행
-```
-
-### ROS2 인터페이스
-Service: /get_keyword
-Request: 없음 (std_srvs/Trigger 스타일)
-Response:
-object (str): 예: scalpel
-target (str): 예: hands
-commands (str): 예: tracking_start
-
-### 웹 연동
-Socket.IO 서버와 연결하여 UI 및 실시간 피드백 제공
-아래 이벤트를 emit:
-"keyword_text" → 감지된 명령 표시
-"info" → "수술정보" 명령 시 전송
+lane detect용 -z 방향으로 카메라 projection
 
 
 **터미널3 get_keyword 노드 실행**
 ```bash
-cd robokrates_ws/
-ros2 run hospital get_keyword
+ros2 launch turtlebot3_autorace_camera extrinsic_camera_calibration.launch.py
 ```
-
-
 ---
 
-## 4. Robot Control 노드
+## 4. detect_lane
 
-`get_keyword` 노드로부터 전달된 **object, target, command** 정보를 바탕으로 Doosan M0609 협동로봇 및 RG2 그리퍼를 제어하는 핵심 노드입니다.  
-명령어 분석 → 위치 계산 → TCP/Base 좌표 변환 → 로봇 이동 및 도구 조작까지 전 과정을 수행합니다.
+DetectLane 노드는 카메라 영상에서 HSV 색상 필터링을 통해 흰색과 노란색 차선을 실시간으로 검출합니다. 
 
+2차 다항식 곡선 피팅과 이동평균을 활용해 부드럽게 차선을 추적하며, 차선 상태와 중심 좌표를 퍼블리시하여 로봇이나 차량의 주행 제어에 활용할 수 있도록 돕는 ROS2 노드입니다.
 
-### 주요 기능 및 흐름
+주요 기능
+1. 파라미터 선언 및 초기화
 
-1. **get_keyword 서비스 호출**  
-   - `/get_keyword` 서비스 요청 → 음성 명령 기반 `object`, `target`, `commands` 수신
+HSV 색공간에서 흰색과 노란색 차선을 구분하기 위한 색상 범위(hue, saturation, value)를 파라미터로 선언
 
-2. **트래킹 제어 (start/stop)**  
-   - `object:start`, `target:tracking` → `/tracking_trigger` 서비스로 `True` 전송  
-   - `object:stop`, `target:tracking` → `/tracking_trigger` 서비스로 `False` 전송, 트래킹 종료 후 홈 위치 복귀
+범위 유효성 검사 (Hue: 0179, Saturation/Value: 0255) 수행
 
-3. **물체(Scalpel, Spray, Suction) 조작**  
-   - /get_3d_position 서비스 호출 → `depth_position`(x,y,z) + `theta` 수신  
-   - 현재 로봇 포즈 조회 (`get_current_posx`)  
-   - TCP→Base 좌표 변환 → 절대 좌표 계산 (gripper2cam, transform 등)  
-   - 이동 및 그리퍼 동작: `movel`, `movej`, `gripper.close/open/move`  
-   - 장애 처리 및 예외 케이스:
-     - 위치 탐지 실패 시 재시도 또는 홈 복귀
-     - 그리핑 실패 시 TTS 알림 및 재시도 로직
-     - Spray: 대상 위치 접근 후 분사 동작 (그리퍼 반복 제어)
-   - 작업 종료 시 홈 또는 대기 위치로 복귀
+실행 중 파라미터 값을 동적으로 변경 가능 (캘리브레이션 모드에서 실시간 조정 지원)
 
+2. 이미지 구독 및 발행
 
-### 주요 ROS2 서비스 및 통신
+원본 카메라 영상 구독 (raw 이미지 또는 압축 이미지 선택 가능)
 
-- **Clients**  
-  - `/get_keyword` (`ObjectTarget`): 음성 명령 분석  
-  - `/get_3d_position` (`DepthAnglePos`): 감지된 객체의 3D 위치 & theta  
-  - `/tracking_trigger` (`SetBool`): 트래킹 제어
+차선 검출 후 결과 영상 및 차선 중심 좌표 등 다양한 결과를 토픽으로 발행
 
-- **로봇 제어 인터페이스**  
-  - `DSR_ROBOT2` 패키지를 통한 `movej`, `movel`, `get_current_posx`, `mwait`  
-  - TCP(Base) 좌표 계산 및 변환  
-  - GRIPPER via Modbus TCP (`hospital.controller.onrobot.RG`)
+캘리브레이션 모드에서는 흰색/노란색 차선 마스크 영상도 별도 발행
 
+3. 차선 마스크 생성
 
-### 예외 처리 및 안정성
+입력된 BGR 이미지를 HSV로 변환 후, 흰색과 노란색 차선에 해당하는 픽셀만 마스크 생성 (cv2.inRange 사용)
 
-- 위치(z, 합계) 이상 시 재탐색 조건 적용 (`z_step` 상승 → 서비스 재호출)  
-- 그리핑 실패 → 재시도 및 TTS 경고  
-- 감지되지 않거나 제어 실패시 대체 흐름 (홈/대기 위치 이동)
+마스크 내 픽셀 수(fraction)를 계산해 차선 검출 정도 판단
 
+명도(Value) 값을 자동으로 조절하여 과다 혹은 과소 검출 시 동적으로 보정
 
-### 코드 구조 요약
+차선 신뢰도(길이 등)를 계산해 유효성 확인
 
-| 기능 | 설명 |
-|------|------|
-| `robot_control()` | 메인 루프: 음성 명령 수신 → object/target 분기 처리 |
-| `get_target_pos()` | 감지 노드로부터 3D 위치 수신 및 좌표 변환 |
-| `transform_to_base()` | TCP→Base 좌표 변환 수학 계산 |
-| `pick_and_place_target()` | 실제 로봇 이동 및 그리퍼 작동 |
-| `init_robot()` | 대기 위치 및 그리퍼 오픈으로 시스템 초기화 |
+4. 차선 곡선 추정
 
+차선 마스크 이미지에서 픽셀 좌표 추출 후, 2차 다항식(포물선) 곡선 피팅(np.polyfit)
 
+피팅 실패 시에는 느리지만 확실한 sliding window 방식으로 다시 추정
+
+최근 프레임들의 차선 계수를 이동평균하여 부드러운 추적 유지
+
+5. 차선 중심 및 상태 계산
+
+좌측(노란색)과 우측(흰색) 차선 곡선을 기반으로 중앙선 계산
+
+차선 검출 상태(양쪽 모두, 한쪽만, 없음)를 판단해 상태 값 발행
+
+차선 위에 검출된 곡선을 영상에 시각적으로 표시 (빨강: 노란차선, 노랑: 흰차선, 녹색: 차선 내부 영역)
+
+차선 중심 좌표를 실시간으로 퍼블리시하여 주행 제어에서 참조 가능
+
+6. 퍼포먼스 및 프레임률 제어
+
+전체 입력 프레임 중 약 3분의 1만 처리해 과부하 방지 (예: 10fps 입력 시 약 3.3fps 처리)
 
 **터미널4 robot_control 노드 실행**
 ```bash
-cd robokrates_ws/
-ros2 run hospital robot_control
+ros2 launch turtlebot3_autorace_detect detect_lane.launch.py
 ```
 
 ---
-# 5. Tracking 노드
+# 5. detect_trafficlight
 
 이 ROS 2 노드는 카메라로 인식된 수술 도구(예: 메스 팁)의 3D 위치를 실시간으로 추적하고, DSR(Doosan) 로봇이 해당 위치를 따라가도록 제어하는 기능을 수행합니다. YOLO 객체 인식 결과를 바탕으로 특정 클래스의 객체를 추적하고, 로봇의 좌표계를 기준으로 변환하여 움직임을 제어합니다.
 
