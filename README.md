@@ -55,7 +55,7 @@ PyQt5 기반 GUI 시스템
 3. 차선안에 사람이 있을경우 차량 정지
 4. 차량의 pitch 기울기값에 따라 오르막길 고속주행, 내리막길 서행
 
-<img width="1860" height="1188" alt="image" src="https://github.com/user-attachments/assets/b79a269c-be40-4e16-bdaf-e51696632a75" />
+<img width="800" alt="image" src="https://github.com/user-attachments/assets/b79a269c-be40-4e16-bdaf-e51696632a75" />
 
 ---
 
@@ -137,7 +137,7 @@ colcon build
 - **control_lane**
 - **pyqt_robot**
 
-<img width="1294" height="869" alt="image" src="https://github.com/user-attachments/assets/26914b54-c3f3-45c9-b1a6-8d113a1bd4b3" />
+<img width="800" alt="image" src="https://github.com/user-attachments/assets/26914b54-c3f3-45c9-b1a6-8d113a1bd4b3" />
 
 
 ---
@@ -154,7 +154,7 @@ ros2 launch turtlebot3_gazebo turtlebot3_autorace_2020.launch.py
 
 <img width="320" alt="image" src="https://github.com/user-attachments/assets/1d7b2ca0-2e56-4eee-b2fa-e5d981a2a23b" />
 
-**터미널2 realsense 노드 실행**
+**터미널2 intrinsic camera calibration 노드 실행**
 ```bash
 ros2 launch turtlebot3_autorace_camera intrinsic_camera_calibration.launch.py
 ```
@@ -168,7 +168,7 @@ lane detect용 -z 방향으로 카메라 projection
 <img width="320" alt="image" src="https://github.com/user-attachments/assets/a0ba9e92-861a-42fa-b366-0279c98e8d3a" />
 
 
-**터미널3 get_keyword 노드 실행**
+**터미널3 extrinsic camera calibration 노드 실행**
 ```bash
 ros2 launch turtlebot3_autorace_camera extrinsic_camera_calibration.launch.py
 ```
@@ -176,7 +176,7 @@ ros2 launch turtlebot3_autorace_camera extrinsic_camera_calibration.launch.py
 
 ## 4. detect_lane
 
-<img width="600" alt="image" src="https://github.com/user-attachments/assets/bc16b96a-5c52-41dd-9e2d-b4c85a1b1247" />
+<img width="320" alt="image" src="https://github.com/user-attachments/assets/bc16b96a-5c52-41dd-9e2d-b4c85a1b1247" />
 
 
 DetectLane 노드는 카메라 영상에서 HSV 색상 필터링을 통해 흰색과 노란색 차선을 실시간으로 검출합니다. 2차 다항식 곡선 피팅과 이동평균을 활용해 부드럽게 차선을 추적하며, 차선 상태와 중심 좌표를 퍼블리시하여 로봇이나 차량의 주행 제어에 활용할 수 있도록 돕는 ROS2 노드입니다.
@@ -220,7 +220,7 @@ ros2 launch turtlebot3_autorace_detect detect_lane.launch.py
 ---
 # 5. detect_traffic_light
 
-<img width="600" alt="image" src="https://github.com/user-attachments/assets/d9b9bba6-c510-436f-adbf-bc326ab3764d" />
+<img width="320" alt="image" src="https://github.com/user-attachments/assets/d9b9bba6-c510-436f-adbf-bc326ab3764d" />
 
 
 detect_traffic_light 노드는 ROS2 환경에서 카메라 영상을 구독해 신호등의 빨강, 노랑, 초록 불빛을 실시간으로 검출하는 노드입니다. HSV 색상 필터링과 SIFT 특징점 매칭을 결합하여 신호등 색상을 정확하게 인식하고, 검출 결과 영상과 신호등 색상 상태를 퍼블리시합니다.
@@ -252,7 +252,7 @@ detect_traffic_light 노드는 ROS2 환경에서 카메라 영상을 구독해 �
 
 # 6. detect_intersection
 
-<img width="600" alt="image" src="https://github.com/user-attachments/assets/408be2f0-dcae-4a37-9dd1-d0a05b669cbd" />
+<img width="320" alt="image" src="https://github.com/user-attachments/assets/408be2f0-dcae-4a37-9dd1-d0a05b669cbd" />
 
 
 detect_intersection 노드는 ROS2 환경에서 카메라 영상을 구독해 교차로, 교차로 탈출, 우회전 표지판을 실시간으로 검출하는 노드입니다. SIFT 특징점 검출과 FLANN 매칭을 활용하여 표지판의 위치와 상태를 인식하고, 검출 결과 영상과 표지판 종류를 퍼블리시합니다.
@@ -290,7 +290,7 @@ detect_intersection 노드는 ROS2 환경에서 카메라 영상을 구독해 �
 ---
 # 7. detect_person
 
-<img width="600" alt="image" src="https://github.com/user-attachments/assets/ab686f9a-24f4-4228-b8da-831df71e6d4e" />
+<img width="320" alt="image" src="https://github.com/user-attachments/assets/ab686f9a-24f4-4228-b8da-831df71e6d4e" />
 
 
 detect_person 노드는 ROS2 환경에서 카메라 영상을 구독해 움직이는 영역 내 사람을 실시간으로 검출하는 노드입니다. 배경 차분(Background Subtraction)과 색상 필터링, HOG 기반 사람 검출 알고리즘을 활용하여 사람 존재 여부를 판단하고, 검출 결과 영상과 함께 사람 검출 신호를 퍼블리시합니다.
