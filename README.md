@@ -59,7 +59,7 @@ PyQt5 기반 GUI 시스템
 
 ## 프로젝트 트리 구조
 
-
+```
 turtlebot3_ws/src/
 ├── **aruco_yolo**
 ├── **dynamic_obstacle_plugin**
@@ -105,7 +105,7 @@ turtlebot3_ws/src/
     ├── image_geometry
     ├── opencv_tests
     └── vision_opencv
-
+```
 
 **prerequirement**
 
@@ -115,7 +115,7 @@ turtlebot3_ws/src/
 
 **설치방법**
 
-project_turtlebot3_autorace_simulation.zip 을 다운받고 위 트리구조에서 bold처리된 폴더 추가 및 교체하고 빌드
+project_turtlebot3_autorace_simulation.zip 을 다운받고 위 트리구조에서 **--**처리된 폴더 추가 및 교체하고 빌드
 
 ```bash
 cd turtlebot3_ws/
