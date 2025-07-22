@@ -10,6 +10,8 @@
 
 [![Video Label](http://img.youtube.com/vi/gTjKGNT-14w/0.jpg)](https://youtu.be/gTjKGNT-14w)
 
+[![Video Label](http://img.youtube.com/vi/l9fkRZHhiPI/0.jpg)](https://youtu.be/l9fkRZHhiPI)
+
 ---
 
 ## 💻 사용 환경 및 개발 도구
@@ -63,7 +65,7 @@ PyQt5 기반 GUI 시스템
 
 ```
 turtlebot3_ws/src/
-├── [aruco_yolo]
+├── aruco_yolo
 ├── [dynamic_obstacle_plugin]
 ├── DynamixelSDK
 ├── fsd_pkg
@@ -80,11 +82,11 @@ turtlebot3_ws/src/
 │   ├── turtlebot3_navigation2
 │   ├── turtlebot3_node
 │   └── turtlebot3_teleop
-├── turtlebot3_autorace
+├── [turtlebot3_autorace]
 │   ├── turtlebot3_autorace
-│   ├── [turtlebot3_autorace_camera]
-│   ├── [turtlebot3_autorace_detect]
-│   └── [turtlebot3_autorace_mission]
+│   ├── turtlebot3_autorace_camera
+│   ├── turtlebot3_autorace_detect
+│   └── turtlebot3_autorace_mission
 ├── turtlebot3_manipulation
 │   ├── turtlebot3_manipulation
 │   ├── turtlebot3_manipulation_bringup
@@ -93,7 +95,7 @@ turtlebot3_ws/src/
 │   ├── turtlebot3_manipulation_moveit_config
 │   └── turtlebot3_manipulation_teleop
 ├── turtlebot3_msgs
-├── turtlebot3_simulations
+├── [turtlebot3_simulations]
 │   ├── turtlebot3_fake_node
 │   ├── [turtlebot3_gazebo]
 │   ├── turtlebot3_manipulation_gazebo
@@ -115,7 +117,15 @@ turtlebot3_ws/src/
 
 3.Quick start guide, 6. Simulation, 8. Autonomous driving 참고하면서 가제보월드(turtlebot3_autorace_2020)상에서 자율주행까지 진행
 
+
+## 의존 라이브러리
+```bash
+pip install cv_bridge PyQt5 pyqtgraph opencv-python Pillow ament_index_python
+```
+
 **설치방법**
+
+[project_turtlebot3_autorace_simulation.zip](https://github.com/user-attachments/files/21372592/project_turtlebot3_autorace_simulation.zip)
 
 project_turtlebot3_autorace_simulation.zip 을 다운받고 위 트리구조에서 [package]처럼 대괄호 처리된 폴더 추가 및 교체하고 빌드
 
@@ -137,6 +147,7 @@ colcon build
 - **control_lane**
 - **pyqt_robot**
 
+
 <img width="800" alt="image" src="https://github.com/user-attachments/assets/26914b54-c3f3-45c9-b1a6-8d113a1bd4b3" />
 
 
@@ -152,7 +163,9 @@ ros2 launch turtlebot3_gazebo turtlebot3_autorace_2020.launch.py
 
 이미지 전처리 노드
 
+
 <img width="320" alt="image" src="https://github.com/user-attachments/assets/1d7b2ca0-2e56-4eee-b2fa-e5d981a2a23b" />
+
 
 **터미널2 intrinsic camera calibration 노드 실행**
 ```bash
@@ -165,7 +178,9 @@ ros2 launch turtlebot3_autorace_camera intrinsic_camera_calibration.launch.py
 
 lane detect용 -z 방향으로 카메라 projection
 
+
 <img width="320" alt="image" src="https://github.com/user-attachments/assets/a0ba9e92-861a-42fa-b366-0279c98e8d3a" />
+
 
 
 **터미널3 extrinsic camera calibration 노드 실행**
@@ -377,7 +392,9 @@ ros2 launch turtlebot3_autorace_mission control_lane.launch.py
 - 신호등 상태 및 사람 감지 메시지 UI 표시
 - 지도와 로봇 아이콘의 위치를 두 가지 모드(지도 고정 / 로봇 고정)로 보여줌
 
-<img src="https://github.com/user-attachments/assets/b0ee48bb-22ae-474f-a91e-ff185bab4a2e" width="1280"/>
+<img width="500" alt="image" src="https://github.com/user-attachments/assets/0e0ac75e-a308-4883-a0c9-f834231a7a9c" />
+<img width="500" alt="image" src="https://github.com/user-attachments/assets/a0a53d99-8b3f-459f-91cd-90611bb84907" />
+
 
 주요 기능
 1. ROS2 토픽 구독 및 데이터 수신
@@ -416,10 +433,8 @@ ros2 run pyqt_robot pyqt_robot_2880x1620
 ```
 
 
-## 의존 라이브러리
-```bash
-pip install cv_bridge PyQt5 pyqtgraph opencv-python Pillow ament_index_python
-```
+<img width="2880" height="1397" alt="image" src="https://github.com/user-attachments/assets/45ae3f00-9973-4cf6-9001-6cc23c41561d" />
+
 
 ---
 ## 팀 소개
