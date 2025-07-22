@@ -62,12 +62,12 @@ PyQt5 기반 GUI 시스템
 ```
 turtlebot3_ws/src/
 ├── [aruco_yolo]
-├── **dynamic_obstacle_plugin**
+├── [dynamic_obstacle_plugin]
 ├── DynamixelSDK
 ├── fsd_pkg
 ├── image_pipeline
 ├── ld08_driver
-├── **pyqt_robot**
+├── [pyqt_robot]
 ├── sample_pkg
 ├── turtlebot3
 │   ├── turtlebot3
@@ -80,9 +80,9 @@ turtlebot3_ws/src/
 │   └── turtlebot3_teleop
 ├── turtlebot3_autorace
 │   ├── turtlebot3_autorace
-│   ├── **turtlebot3_autorace_camera**
-│   ├── **turtlebot3_autorace_detect**
-│   └── **turtlebot3_autorace_mission**
+│   ├── [turtlebot3_autorace_camera]
+│   ├── [turtlebot3_autorace_detect]
+│   └── [turtlebot3_autorace_mission]
 ├── turtlebot3_manipulation
 │   ├── turtlebot3_manipulation
 │   ├── turtlebot3_manipulation_bringup
@@ -93,7 +93,7 @@ turtlebot3_ws/src/
 ├── turtlebot3_msgs
 ├── turtlebot3_simulations
 │   ├── turtlebot3_fake_node
-│   ├── **turtlebot3_gazebo**
+│   ├── [turtlebot3_gazebo]
 │   ├── turtlebot3_manipulation_gazebo
 │   └── turtlebot3_simulations
 ├── turtlebot_cosmo_interface
@@ -115,7 +115,7 @@ turtlebot3_ws/src/
 
 **설치방법**
 
-project_turtlebot3_autorace_simulation.zip 을 다운받고 위 트리구조에서 [package]처리된 폴더 추가 및 교체하고 빌드
+project_turtlebot3_autorace_simulation.zip 을 다운받고 위 트리구조에서 [package]처럼 대괄호 처리된 폴더 추가 및 교체하고 빌드
 
 ```bash
 cd turtlebot3_ws/
@@ -229,69 +229,48 @@ ros2 launch turtlebot3_autorace_detect detect_lane.launch.py
 ```
 
 ---
-# 5. detect_trafficlight
+# 5. detect_traffic_light
 
-이 ROS 2 노드는 카메라로 인식된 수술 도구(예: 메스 팁)의 3D 위치를 실시간으로 추적하고, DSR(Doosan) 로봇이 해당 위치를 따라가도록 제어하는 기능을 수행합니다. YOLO 객체 인식 결과를 바탕으로 특정 클래스의 객체를 추적하고, 로봇의 좌표계를 기준으로 변환하여 움직임을 제어합니다.
+detect_traffic_light 노드는 ROS2 환경에서 카메라 영상을 구독해 신호등의 빨강, 노랑, 초록 불빛을 실시간으로 검출하는 노드입니다. HSV 색상 필터링과 SIFT 특징점 매칭을 결합하여 신호등 색상을 정확하게 인식하고, 검출 결과 영상과 신호등 색상 상태를 퍼블리시합니다.
 
+주요 기능
+1. 이미지 구독 및 발행
 
-## 주요 기능
+원본 카메라 영상 구독 (raw 또는 compressed 이미지 선택 가능)
 
-- `/tracking_trigger` 서비스(`std_srvs/SetBool`)를 통해 추적 시작/중지 제어
-- `/tracked_objects_3d` (`std_msgs/Float32MultiArray`)로부터 객체 3D 위치 구독
-- `class_id == 5`이면서 이름이 `"scarpel_tip"`인 객체만 필터링
-- `/dsr01/msg/current_posx` (`std_msgs/Float64MultiArray`)를 통해 로봇 현재 위치 구독
-- 좌표 변화가 일정 이상일 때만 로봇 제어 수행 (노이즈 제거)
-- 카메라 프레임에서 로봇 베이스 프레임으로 좌표 변환 (보정 매트릭스 사용)
-- 로봇 제어 명령 `amovel` 호출로 비동기 이동 명령 발행
-- 깊이 유효성 검사 및 오프셋 보정 포함
+신호등 검출 결과 영상 퍼블리시 (raw 또는 compressed)
 
-## 주요 토픽 및 서비스
+검출된 신호등 색상 상태(‘red’, ‘yellow’, ‘green’, ‘none’)를 /detect/traffic_light 토픽으로 퍼블리시
 
-| 항목 | 이름 | 타입 | 설명 |
-|------|------|------|------|
-| 서비스 | `/tracking_trigger` | `std_srvs/SetBool` | 추적 ON/OFF 제어 |
-| 구독 | `/tracked_objects_3d` | `Float32MultiArray` | 3D 객체 위치 (x, y, z, class_id, conf 등) |
-| 구독 | `/dsr01/msg/current_posx` | `Float64MultiArray` | 로봇의 현재 위치 |
-| 내부 동작 | `amovel(pos)` | 로봇 API 호출 | 대상 위치로 로봇 이동 |
+2. 신호등 색상 검출
 
+ROI(관심 영역)를 지정하여 불필요한 영역 제외
 
-**터미널5 tracking 노드 실행** 
-```bash
-cd robokrates_ws/
-ros2 run hospital tracking
-```
+HSV 색공간 기반 엄격한 색상 범위 필터링으로 빨강, 노랑, 초록색 영역 검출
 
-tracking start/stop service call 예시
-```bash
-# 추적 시작
-ros2 service call /tracking_trigger std_srvs/srv/SetBool "{data: true}"
+색상별 픽셀 비율 임계값을 초과할 경우 해당 색상을 후보로 판단
 
-# 추적 중지
-ros2 service call /tracking_trigger std_srvs/srv/SetBool "{data: false}"
-```
+3. 특징점 기반 SIFT 매칭
 
-## 참고 사항
-추적 대상 객체는 "scarpel_tip"이라는 이름을 가진 클래스 ID 5번 객체로 한정되어 있음
-로봇 제어 명령은 추적 대상의 위치 변화가 delta > 10 mm 일 때만 발행됨
-좌표계 보정 매트릭스는 수동 캘리브레이션을 통해 생성된 .npy 파일을 사용함
+각 신호등 색상별 템플릿 이미지에서 SIFT 특징점 미리 추출 및 저장
 
-비동기 이동명령
-```python
-amovel(target_pos, vel=20, acc=20, mod=0, radius=10, ra=DR_MV_RA_OVERRIDE)
-wait(0.8)
-```
+검출 후보 영역에서 SIFT 특징점 추출 후 템플릿과 FLANN 매칭 수행
 
-<img src="https://github.com/user-attachments/assets/95128038-90ee-4bab-812e-66641f633f45" width="1280"/>
+일정 개수 이상의 좋은 매칭과 MSE 기반 유사도 검사로 검출 신뢰도 평가
 
-pos = 10, 30, 10, 30, 20 으로 이동할 경우
-파란선은 radius = 0, 주황선은 radius = 10 그래프
+4. 결과 영상 처리
 
-radius 값을 줌으로써 위치정밀도는 조금 떨어지지만 이동을 부드럽게 바꿀 수 있었음.
+신호등 색상 검출 시 템플릿과 매칭 결과를 그려 결과 영상 생성
 
+색상 미검출 시 ROI 영역 영상 그대로 발행
+
+5. 퍼포먼스 제어
+
+프레임 처리 속도 제한(3프레임마다 1회 처리)으로 연산 부하 완화
 
 ---
 
-# 6. Detection 노드
+# 6. detect_intersection
 
 이 노드는 Realsense RGB 및 Depth 영상을 기반으로 의료 도구(예: 메스)를 인식하고, 해당 객체의 3D 위치 및 기울기(theta)를 계산하여 `robot_control` 노드에 제공합니다. 또한, 객체 내부의 검은 선(예: 테이프)을 검출하여 정밀한 위치/방향 추정을 수행합니다.
 
